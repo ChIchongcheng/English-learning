@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const multer = require('multer');
 const XLSX = require('xlsx');
+const fs = require('fs');
 
 const app = express();
 
@@ -131,9 +132,21 @@ app.post('/api/admin/upload/choice', upload.single('file'), async (req, res) => 
             count: data.length 
         });
         
+        // 清理临时文件
+        fs.unlink(req.file.path, (err) => {
+            if (err) console.error('删除临时文件失败:', err);
+        });
+        
     } catch (error) {
         console.error('错误:', error);
         res.status(500).json({ error: '上传失败' });
+        
+        // 出错时也要清理临时文件
+        if (req.file) {
+            fs.unlink(req.file.path, (err) => {
+                if (err) console.error('删除临时文件失败:', err);
+            });
+        }
     }
 });
 
@@ -192,9 +205,21 @@ app.post('/api/admin/upload/flashcard', upload.single('file'), async (req, res) 
             results: uploadResults
         });
         
+        // 清理临时文件
+        fs.unlink(req.file.path, (err) => {
+            if (err) console.error('删除临时文件失败:', err);
+        });
+        
     } catch (error) {
         console.error('错误:', error);
         res.status(500).json({ error: '上传失败' });
+        
+        // 出错时也要清理临时文件
+        if (req.file) {
+            fs.unlink(req.file.path, (err) => {
+                if (err) console.error('删除临时文件失败:', err);
+            });
+        }
     }
 });
 
@@ -269,9 +294,21 @@ app.post('/api/admin/upload/cloze', upload.single('file'), async (req, res) => {
             count: data.length 
         });
         
+        // 清理临时文件
+        fs.unlink(req.file.path, (err) => {
+            if (err) console.error('删除临时文件失败:', err);
+        });
+        
     } catch (error) {
         console.error('错误:', error);
         res.status(500).json({ error: '上传失败' });
+        
+        // 出错时也要清理临时文件
+        if (req.file) {
+            fs.unlink(req.file.path, (err) => {
+                if (err) console.error('删除临时文件失败:', err);
+            });
+        }
     }
 });
 
