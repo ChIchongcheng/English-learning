@@ -549,11 +549,25 @@
             
             // 为每个选项创建单词选择题
             questionOptions.forEach((option, index) => {
-                const flashcard = flashcards.find(f => f.word === option);
+                // 首先尝试通过question_id和word匹配
+                let flashcard = flashcards.find(f => f.question_id === currentQuestion.id && f.word === option);
+                
+                // 如果没找到，则只通过word匹配（兼容旧数据）
+                if (!flashcard) {
+                    flashcard = flashcards.find(f => f.word === option);
+                }
+                
                 if (flashcard) {
                     wordQuestions.push({
                         word: option,
                         explanation: flashcard.explanation || flashcard.meaning,
+                        correct: true
+                    });
+                } else {
+                    // 如果找不到对应的闪卡，使用默认解释
+                    wordQuestions.push({
+                        word: option,
+                        explanation: `单词: ${option}`,
                         correct: true
                     });
                 }
@@ -681,13 +695,26 @@
             ];
             
             const currentWord = questionOptions[currentFlashcardIndex];
-            const flashcard = flashcards.find(f => f.word === currentWord);
+            
+            // 首先尝试通过question_id和word匹配
+            let flashcard = flashcards.find(f => f.question_id === currentQuestion.id && f.word === currentWord);
+            
+            // 如果没找到，则只通过word匹配（兼容旧数据）
+            if (!flashcard) {
+                flashcard = flashcards.find(f => f.word === currentWord);
+            }
             
             if (flashcard) {
                 document.getElementById('flashcardWord').textContent = flashcard.word;
                 document.getElementById('flashcardMeaning').textContent = flashcard.meaning;
                 document.getElementById('flashcardExample').textContent = flashcard.example || '';
                 document.getElementById('flashcardExplanation').textContent = flashcard.explanation || '';
+            } else {
+                // 如果找不到对应的闪卡，显示默认信息
+                document.getElementById('flashcardWord').textContent = currentWord;
+                document.getElementById('flashcardMeaning').textContent = '暂无释义';
+                document.getElementById('flashcardExample').textContent = '';
+                document.getElementById('flashcardExplanation').textContent = '';
             }
             
             document.getElementById('currentCycle').textContent = currentCycle;
@@ -702,7 +729,7 @@
             
             autoPlayInterval = setInterval(() => {
                 nextFlashcard();
-            }, 3000); // 每3秒切换一次
+            }, 2000); // 每2秒切换一次
         }
 
         // 停止自动播放
