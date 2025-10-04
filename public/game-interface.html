@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>单词学习游戏</title>
+    <link rel="stylesheet" href="/assets/effects.css">
     <style>
         * {
             margin: 0;
@@ -245,6 +246,14 @@
             background: linear-gradient(90deg, #667eea, #764ba2);
         }
 
+        .word-question-instruction {
+            font-size: 1.1em;
+            color: #888;
+            margin-bottom: 5px;
+            margin-top: -10px;
+            font-weight: 500;
+        }
+
         .word-question {
             font-size: 1.5em;
             color: #2d3748;
@@ -404,7 +413,8 @@
 
         <!-- 单词选择题阶段 -->
         <div id="wordQuestionStage" class="word-question-container hidden">
-            <div class="word-question" id="wordQuestionText">根据英文解释选择正确的单词</div>
+            <div class="word-question-instruction">根据英文解释选择正确的单词</div>
+            <div class="word-question" id="wordQuestionText">加载中...</div>
             <div class="word-options" id="wordOptionsContainer">
                 <!-- 选项将通过JavaScript动态生成 -->
             </div>
@@ -443,6 +453,12 @@
         // 初始化游戏
         function initGame() {
             try {
+                // 重置游戏状态
+                currentLevel = 1;
+                correctCount = 0;
+                wrongCount = 0;
+                updateStats();
+                
                 // 从本地存储加载数据
                 const storedQuestions = localStorage.getItem('choiceQuestions');
                 const storedFlashcards = localStorage.getItem('flashcards');
@@ -631,12 +647,20 @@
                 resultDiv.textContent = '正确！';
                 correctCount++;
                 
+                // 播放正确音效和特效
+                audioManager.playCorrectSound();
+                effectsManager.showCorrectEffect();
+                
                 // 答对了：权重降低到1/10
                 updateQuestionWeight(currentQuestion.id, true);
             } else {
                 resultDiv.className = 'result incorrect';
                 resultDiv.textContent = `错误！正确答案是 ${currentQuestion.correct_answer}`;
                 wrongCount++;
+                
+                // 播放错误音效和特效
+                audioManager.playWrongSound();
+                effectsManager.showWrongEffect();
                 
                 // 答错了：权重提高5倍
                 updateQuestionWeight(currentQuestion.id, false);
@@ -670,7 +694,6 @@
         // 显示单词闪卡
         function showFlashcard() {
             currentStage = 'flashcard';
-            currentLevel = 2;
             currentFlashcardIndex = 0;
             currentCycle = 1;
             
@@ -785,7 +808,6 @@
         // 显示单词选择题
         function showWordQuestion() {
             currentStage = 'wordQuestion';
-            currentLevel = 3;
             currentWordQuestionIndex = 0;
             
             document.getElementById('questionStage').classList.add('hidden');
@@ -799,14 +821,17 @@
         // 显示当前单词选择题
         function showCurrentWordQuestion() {
             if (currentWordQuestionIndex >= wordQuestions.length) {
-                // 所有单词选择题完成
+                // 所有单词选择题完成，完成一个完整循环，关卡数+1
+                currentLevel++;
+                updateStats();
+                
                 document.getElementById('nextBtn').classList.remove('hidden');
                 document.getElementById('endGameBtn').classList.remove('hidden');
                 return;
             }
             
             const question = wordQuestions[currentWordQuestionIndex];
-            document.getElementById('wordQuestionText').textContent = `根据英文解释选择正确的单词：${question.explanation}`;
+            document.getElementById('wordQuestionText').textContent = question.explanation;
             
             const optionsContainer = document.getElementById('wordOptionsContainer');
             optionsContainer.innerHTML = '';
@@ -858,10 +883,18 @@
                 resultDiv.className = 'result correct';
                 resultDiv.textContent = '正确！';
                 correctCount++;
+                
+                // 播放正确音效和特效
+                audioManager.playCorrectSound();
+                effectsManager.showCorrectEffect();
             } else {
                 resultDiv.className = 'result incorrect';
                 resultDiv.textContent = `错误！正确答案是 ${question.word}`;
                 wrongCount++;
+                
+                // 播放错误音效和特效
+                audioManager.playWrongSound();
+                effectsManager.showWrongEffect();
             }
             
             resultDiv.classList.remove('hidden');
@@ -879,7 +912,6 @@
 
         // 下一关
         function nextStage() {
-            currentLevel++;
             startNewRound();
             
             // 隐藏控制按钮
@@ -907,5 +939,9 @@
         // 页面加载完成后初始化游戏
         document.addEventListener('DOMContentLoaded', initGame);
     </script>
+    
+    <!-- 音效和特效管理器 -->
+    <script src="/assets/audio-manager.js"></script>
+    <script src="/assets/effects-manager.js"></script>
 </body>
 </html>
