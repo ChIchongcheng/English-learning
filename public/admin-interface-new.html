@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>题库管理系统 - 管理员界面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        .admin-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .admin-title {
+            font-size: 2.5em;
+            color: #4a5568;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .admin-subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .upload-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .upload-card {
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .upload-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .upload-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .card-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .card-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            font-size: 0.9em;
+        }
+
+        .file-input {
+            margin-bottom: 15px;
+        }
+
+        .file-input input[type="file"] {
+            display: none;
+        }
+
+        .file-input label {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            font-size: 0.9em;
+        }
+
+        .file-input label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+
+        .upload-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .file-info {
+            margin-top: 10px;
+            padding: 8px;
+            background: #f7fafc;
+            border-radius: 5px;
+            font-size: 0.8em;
+            color: #666;
+            display: none;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1em;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 10px;
+            color: #667eea;
+            font-size: 0.9em;
+        }
+
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 5px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #a0aec0, #718096);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(160, 174, 192, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .upload-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="main-interface.html" class="back-btn">← 返回主界面</a>
+    
+    <div class="admin-container">
+        <h1 class="admin-title">题库管理系统</h1>
+        <p class="admin-subtitle">上传Excel文件到题库</p>
+        
+        <div class="upload-section">
+            <!-- 选择题上传 -->
+            <div class="upload-card">
+                <div class="card-icon">📝</div>
+                <div class="card-title">选择题</div>
+                <div class="card-description">
+                    上传包含选择题的Excel文件<br>
+                    格式：题目、选项A、选项B、选项C、选项D、正确答案、解释
+                </div>
+                
+                <div class="file-input">
+                    <input type="file" id="choiceFile" accept=".xlsx,.xls" onchange="handleFileSelect('choice')">
+                    <label for="choiceFile">选择Excel文件</label>
+                </div>
+                
+                <div class="file-info" id="choiceFileInfo"></div>
+                
+                <button class="upload-btn" id="choiceUploadBtn" onclick="uploadFile('choice')" disabled>
+                    上传选择题
+                </button>
+                
+                <div class="loading" id="choiceLoading">
+                    <div class="spinner"></div>
+                    正在上传...
+                </div>
+                
+                <div class="status" id="choiceStatus"></div>
+            </div>
+
+            <!-- 单词闪卡上传 -->
+            <div class="upload-card">
+                <div class="card-icon">🎴</div>
+                <div class="card-title">单词闪卡</div>
+                <div class="card-description">
+                    上传包含单词闪卡的Excel文件<br>
+                    格式：单词、中文意思、例句、解释、词性、发音、对应题目ID
+                </div>
+                
+                <div class="file-input">
+                    <input type="file" id="flashcardFile" accept=".xlsx,.xls" onchange="handleFileSelect('flashcard')">
+                    <label for="flashcardFile">选择Excel文件</label>
+                </div>
+                
+                <div class="file-info" id="flashcardFileInfo"></div>
+                
+                <button class="upload-btn" id="flashcardUploadBtn" onclick="uploadFile('flashcard')" disabled>
+                    上传单词闪卡
+                </button>
+                
+                <div class="loading" id="flashcardLoading">
+                    <div class="spinner"></div>
+                    正在上传...
+                </div>
+                
+                <div class="status" id="flashcardStatus"></div>
+            </div>
+
+            <!-- 完形填空上传 -->
+            <div class="upload-card">
+                <div class="card-icon">📄</div>
+                <div class="card-title">完形填空</div>
+                <div class="card-description">
+                    上传包含完形填空的Excel文件<br>
+                    格式：文章、正确答案（逗号分隔）、解释
+                </div>
+                
+                <div class="file-input">
+                    <input type="file" id="clozeFile" accept=".xlsx,.xls" onchange="handleFileSelect('cloze')">
+                    <label for="clozeFile">选择Excel文件</label>
+                </div>
+                
+                <div class="file-info" id="clozeFileInfo"></div>
+                
+                <button class="upload-btn" id="clozeUploadBtn" onclick="uploadFile('cloze')" disabled>
+                    上传完形填空
+                </button>
+                
+                <div class="loading" id="clozeLoading">
+                    <div class="spinner"></div>
+                    正在上传...
+                </div>
+                
+                <div class="status" id="clozeStatus"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://59.110.29.11:3000/api';
+        let selectedFiles = {
+            choice: null,
+            flashcard: null,
+            cloze: null
+        };
+
+        function handleFileSelect(type) {
+            const fileInput = document.getElementById(`${type}File`);
+            const fileInfo = document.getElementById(`${type}FileInfo`);
+            const uploadBtn = document.getElementById(`${type}UploadBtn`);
+            
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                selectedFiles[type] = file;
+                
+                fileInfo.innerHTML = `
+                    <strong>已选择文件:</strong> ${file.name}<br>
+                    <strong>文件大小:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB<br>
+                    <strong>文件类型:</strong> ${file.type}
+                `;
+                fileInfo.style.display = 'block';
+                uploadBtn.disabled = false;
+            } else {
+                selectedFiles[type] = null;
+                fileInfo.style.display = 'none';
+                uploadBtn.disabled = true;
+            }
+        }
+
+        async function uploadFile(type) {
+            const file = selectedFiles[type];
+            if (!file) {
+                showStatus(type, 'error', '请先选择文件');
+                return;
+            }
+
+            const loading = document.getElementById(`${type}Loading`);
+            const uploadBtn = document.getElementById(`${type}UploadBtn`);
+            const status = document.getElementById(`${type}Status`);
+
+            try {
+                // 显示加载状态
+                loading.style.display = 'block';
+                uploadBtn.disabled = true;
+                uploadBtn.textContent = '上传中...';
+
+                // 创建FormData
+                const formData = new FormData();
+                formData.append('file', file);
+
+                // 发送请求
+                const response = await fetch(`${API_BASE}/admin/upload/${type}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`上传失败: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                // 显示成功状态
+                loading.style.display = 'none';
+                showStatus(type, 'success', `${result.message}，共处理 ${result.count} 条记录`);
+
+            } catch (error) {
+                console.error('上传失败:', error);
+                loading.style.display = 'none';
+                showStatus(type, 'error', `上传失败: ${error.message}`);
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = `上传${getTypeName(type)}`;
+            }
+        }
+
+        function showStatus(type, statusType, message) {
+            const status = document.getElementById(`${type}Status`);
+            status.className = `status ${statusType}`;
+            status.textContent = message;
+            status.style.display = 'block';
+
+            // 3秒后隐藏状态信息
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+
+        function getTypeName(type) {
+            const names = {
+                choice: '选择题',
+                flashcard: '单词闪卡',
+                cloze: '完形填空'
+            };
+            return names[type] || type;
+        }
+    </script>
+</body>
+</html>
